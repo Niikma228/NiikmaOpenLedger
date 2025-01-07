@@ -1,0 +1,47 @@
+#!/bin/bash
+
+# Удаление старых версий Docker
+sudo apt remove -y docker docker-engine docker.io containerd runc
+
+# Установка зависимостей для Docker
+sudo apt install -y apt-transport-https ca-certificates curl software-properties-common
+
+# Добавление GPG ключа Docker
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+
+# Добавление репозитория Docker
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+# Обновление списка пакетов
+sudo apt update
+
+# Установка Docker
+sudo apt install -y docker-ce docker-ce-cli containerd.io
+
+# Проверка версии Docker
+sudo docker --version
+
+# Установка зависимостей для OpenLedger
+sudo apt update
+sudo apt install -y libgtk-3-0 libnotify4 libnss3 libxss1 libxtst6 xdg-utils libatspi2.0-0 libsecret-1-0
+
+# Загрузка и установка OpenLedger
+wget https://cdn.openledger.xyz/openledger-node-1.0.0-linux.zip
+sudo apt install -y unzip screen
+unzip openledger-node-1.0.0-linux.zip
+sudo dpkg -i openledger-node-1.0.0.deb
+
+# Исправление зависимостей
+sudo apt-get install -f
+
+# Дополнительные установки и настройки
+sudo apt-get install -y desktop-file-utils
+sudo dpkg --configure -a
+sudo apt-get install -y libgbm1 libasound2t64
+
+# Запуск OpenLedger в screen с параметром --no-sandbox
+screen -S openledger_node
+openledger-node --no-sandbox
+
+echo "Установка завершена!"
+
